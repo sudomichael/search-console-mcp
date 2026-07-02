@@ -1,10 +1,24 @@
+<div align="center">
+
 # search-console-mcp
 
 **Search Console was built for dashboards. This gives you a conversation instead.**
 
-Talk to your Google Search Console from Claude, Cursor, or any MCP client — one sign-in, 30 seconds, no Google Cloud project.
+Talk to your Google Search Console from Claude, Cursor, or any MCP client.
+
+One sign-in. 30 seconds. *No Google Cloud project. No API keys. Tokens never leave your machine.*
+
+[![npm](https://img.shields.io/npm/v/search-console-mcp-server)](https://www.npmjs.com/package/search-console-mcp-server)
+[![license](https://img.shields.io/npm/l/search-console-mcp-server)](./LICENSE)
+[![node](https://img.shields.io/node/v/search-console-mcp-server)](https://nodejs.org)
+
+[Docs](https://www.getpercy.io/search-console-mcp) · [npm](https://www.npmjs.com/package/search-console-mcp-server) · [Report an issue](https://github.com/sudomichael/search-console-mcp/issues)
+
+</div>
 
 <!-- TODO(launch): hero GIF here — login → consent → "Connected." → asking Claude "which pages lost clicks this month?" -->
+
+---
 
 ```
  Google Search Console
@@ -33,6 +47,20 @@ Your browser opens, you sign in with Google, done. Tokens are minted by Google d
 | Runtime | Node — `npx`, nothing to install | Python + uv/venv |
 | Can it modify your site data? | **Impossible** — read-only scope by construction | Write scopes with destructive ops "disabled by default" |
 | Analyses | 5 built-in (checkup, cannibalization, striking distance, traffic drop, indexing audit) | Bring your own prompts |
+
+## What to expect on first run
+
+```
+$ npx search-console-mcp-server login
+Opening your browser to sign in with Google…
+
+Connected. Your Search Console is ready — tokens stored in
+~/.search-console-mcp (this machine only).
+```
+
+That's the whole setup. No clone, no Google Cloud console, no JSON files.
+
+---
 
 ## What it feels like
 
@@ -150,6 +178,17 @@ Google Search Console data lags ~2–3 days. That's Google, not the tool. Histor
 
 **Revoke access?**
 `npx search-console-mcp-server logout` deletes local tokens; [myaccount.google.com/permissions](https://myaccount.google.com/permissions) revokes the grant itself.
+
+## Development
+
+```bash
+git clone https://github.com/sudomichael/search-console-mcp
+cd search-console-mcp && npm install
+npm run dev      # run from source
+npm run build    # bundle to dist/ (10KB, no googleapis dependency)
+```
+
+The entire auth path is ~200 lines in [`src/auth.ts`](src/auth.ts). To verify any privacy claim above, read the source.
 
 ---
 
