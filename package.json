@@ -1,0 +1,48 @@
+{
+  "name": "percy-gsc",
+  "version": "0.1.0",
+  "description": "Talk to your Google Search Console from Claude, Cursor, or any MCP client — one sign-in, no Google Cloud project required.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "percy-gsc": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --target node18 --clean",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "google-search-console",
+    "gsc",
+    "seo",
+    "claude",
+    "cursor"
+  ],
+  "homepage": "https://www.getpercy.io/gsc-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sudomichael/percy-gsc"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0"
+  }
+}
