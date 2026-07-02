@@ -25,7 +25,7 @@ function fail(err: unknown) {
 }
 
 export async function serve(): Promise<void> {
-  const server = new McpServer({ name: "percy-gsc", version: "0.1.0" });
+  const server = new McpServer({ name: "search-console-mcp", version: "0.1.0" });
 
   server.tool(
     "list_properties",

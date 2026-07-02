@@ -1,11 +1,11 @@
 {
-  "name": "percy-gsc",
+  "name": "@getpercy/search-console-mcp",
   "version": "0.1.0",
   "description": "Talk to your Google Search Console from Claude, Cursor, or any MCP client — one sign-in, no Google Cloud project required.",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "percy-gsc": "dist/index.js"
+    "search-console-mcp": "dist/index.js"
   },
   "files": [
     "dist",
@@ -30,10 +30,10 @@
     "claude",
     "cursor"
   ],
-  "homepage": "https://www.getpercy.io/gsc-mcp",
+  "homepage": "https://www.getpercy.io/search-console-mcp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sudomichael/percy-gsc"
+    "url": "https://github.com/sudomichael/search-console-mcp"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

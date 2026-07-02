@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * percy-gsc — Google Search Console for MCP clients, with a 30-second login.
+ * search-console-mcp — Google Search Console for MCP clients, with a 30-second login.
  *
- *   npx percy-gsc login     one-time Google sign-in (tokens stay local)
- *   npx percy-gsc           run the MCP server (stdio) — what clients invoke
- *   npx percy-gsc logout    delete local credentials
+ *   npx @getpercy/search-console-mcp login     one-time Google sign-in (tokens stay local)
+ *   npx @getpercy/search-console-mcp           run the MCP server (stdio) — what clients invoke
+ *   npx @getpercy/search-console-mcp logout    delete local credentials
  */
 import { login, logout } from "./auth.js";
 import { serve } from "./server.js";
@@ -16,11 +16,11 @@ async function main() {
   if (cmd === "logout") return logout();
   if (cmd === "help" || cmd === "--help" || cmd === "-h") {
     console.error(
-      "percy-gsc — Search Console for Claude/Cursor/any MCP client\n\n" +
-        "  npx percy-gsc login    one-time Google sign-in\n" +
-        "  npx percy-gsc          run the MCP server (used by your MCP client)\n" +
-        "  npx percy-gsc logout   remove local credentials\n\n" +
-        "Docs: https://www.getpercy.io/gsc-mcp",
+      "search-console-mcp — Search Console for Claude/Cursor/any MCP client\n\n" +
+        "  npx @getpercy/search-console-mcp login    one-time Google sign-in\n" +
+        "  npx @getpercy/search-console-mcp          run the MCP server (used by your MCP client)\n" +
+        "  npx @getpercy/search-console-mcp logout   remove local credentials\n\n" +
+        "Docs: https://www.getpercy.io/search-console-mcp",
     );
     return;
   }

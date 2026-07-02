@@ -3,7 +3,7 @@
  *
  * Privacy contract (this is the product's launch story, don't break it):
  * tokens are minted by Google directly to THIS machine and stored ONLY in
- * ~/.percy-gsc/credentials.json. Nothing passes through Percy's servers.
+ * ~/.search-console-mcp/credentials.json. Nothing passes through Percy's servers.
  *
  * The client credentials below belong to a Google "Desktop app" OAuth client.
  * Google's docs are explicit that installed-app credentials are not treated
@@ -19,14 +19,16 @@ import { join } from "node:path";
 import { spawn } from "node:child_process";
 
 const CLIENT_ID =
-  process.env.PERCY_GSC_CLIENT_ID ??
-  "REPLACE_ME.apps.googleusercontent.com";
-const CLIENT_SECRET = process.env.PERCY_GSC_CLIENT_SECRET ?? "REPLACE_ME";
+  process.env.SEARCH_CONSOLE_MCP_CLIENT_ID ??
+  "1032081156097-9tkkokkfd3t3op35t6tt5ggun68clgpt.apps.googleusercontent.com";
+const CLIENT_SECRET =
+  process.env.SEARCH_CONSOLE_MCP_CLIENT_SECRET ??
+  "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";
 
 const SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
-const SUCCESS_URL = "https://www.getpercy.io/gsc-mcp/connected";
+const SUCCESS_URL = "https://www.getpercy.io/search-console-mcp/connected";
 
-const CRED_DIR = join(homedir(), ".percy-gsc");
+const CRED_DIR = join(homedir(), ".search-console-mcp");
 const CRED_FILE = join(CRED_DIR, "credentials.json");
 
 type Credentials = {
@@ -80,7 +82,7 @@ export async function login(): Promise<void> {
       if (err || gotState !== state || !gotCode) {
         res
           .writeHead(400, { "Content-Type": "text/plain" })
-          .end("Sign-in failed — you can close this tab and rerun `npx percy-gsc login`.");
+          .end("Sign-in failed — you can close this tab and rerun `npx @getpercy/search-console-mcp login`.");
         server.close();
         reject(new Error(err ?? "OAuth state mismatch"));
         return;
@@ -138,7 +140,7 @@ export async function login(): Promise<void> {
     access_token: tokens.access_token,
     expires_at: Date.now() + (tokens.expires_in - 60) * 1000,
   });
-  console.error("Connected. Your Search Console is ready — tokens stored in ~/.percy-gsc (this machine only).");
+  console.error("Connected. Your Search Console is ready — tokens stored in ~/.search-console-mcp (this machine only).");
 }
 
 export async function logout(): Promise<void> {
@@ -151,7 +153,7 @@ export async function accessToken(): Promise<string> {
   const creds = await load();
   if (!creds) {
     throw new Error(
-      "Not signed in. Run `npx percy-gsc login` first (one-time, 30 seconds).",
+      "Not signed in. Run `npx @getpercy/search-console-mcp login` first (one-time, 30 seconds).",
     );
   }
   if (Date.now() < creds.expires_at) return creds.access_token;

@@ -1,21 +1,21 @@
-# percy-gsc
+# search-console-mcp
 
 **Talk to your Google Search Console from Claude, Cursor, or any MCP client — one sign-in, 30 seconds, no Google Cloud project.**
 
 Every other Search Console MCP server makes you create a Google Cloud project, enable APIs, and wrangle service-account JSON. This one doesn't:
 
 ```bash
-npx percy-gsc login
+npx @getpercy/search-console-mcp login
 ```
 
-Your browser opens, you sign in with Google, done. Tokens are minted by Google directly to your machine and stored **only** in `~/.percy-gsc/` — nothing passes through anyone's servers. Read-only scope.
+Your browser opens, you sign in with Google, done. Tokens are minted by Google directly to your machine and stored **only** in `~/.search-console-mcp/` — nothing passes through anyone's servers. Read-only scope.
 
 ## Setup
 
 **1. Sign in (one time):**
 
 ```bash
-npx percy-gsc login
+npx @getpercy/search-console-mcp login
 ```
 
 **2. Add to your MCP client:**
@@ -23,7 +23,7 @@ npx percy-gsc login
 Claude Code:
 
 ```bash
-claude mcp add gsc -- npx -y percy-gsc
+claude mcp add gsc -- npx -y @getpercy/search-console-mcp
 ```
 
 Claude Desktop / Cursor / anything else (`mcpServers` config):
@@ -31,7 +31,7 @@ Claude Desktop / Cursor / anything else (`mcpServers` config):
 ```json
 {
   "mcpServers": {
-    "gsc": { "command": "npx", "args": ["-y", "percy-gsc"] }
+    "gsc": { "command": "npx", "args": ["-y", "@getpercy/search-console-mcp"] }
   }
 }
 ```
@@ -55,9 +55,9 @@ Claude Desktop / Cursor / anything else (`mcpServers` config):
 ## Privacy
 
 - **Read-only** Google scope (`webmasters.readonly`).
-- Tokens live in `~/.percy-gsc/credentials.json` on your machine, `chmod 600`. `npx percy-gsc logout` deletes them.
+- Tokens live in `~/.search-console-mcp/credentials.json` on your machine, `chmod 600`. `npx @getpercy/search-console-mcp logout` deletes them.
 - No telemetry, no proxy — API calls go from your machine to Google, full stop.
-- Prefer your own Google Cloud project? Set `PERCY_GSC_CLIENT_ID` / `PERCY_GSC_CLIENT_SECRET` and it uses yours.
+- Prefer your own Google Cloud project? Set `SEARCH_CONSOLE_MCP_CLIENT_ID` / `SEARCH_CONSOLE_MCP_CLIENT_SECRET` and it uses yours.
 
 ## Who made this
 

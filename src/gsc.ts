@@ -1,6 +1,6 @@
 /**
  * Thin Google Search Console REST client — plain fetch, no googleapis
- * dependency, so `npx percy-gsc` starts instantly.
+ * dependency, so `npx` startup stays instantly.
  */
 import { accessToken } from "./auth.js";
 
