@@ -188,3 +188,32 @@ export async function inspectUrl(args: {
   );
   return data.inspectionResult ?? data;
 }
+
+/**
+ * Inspect up to 10 URLs, 3 at a time (the inspection API is the slow one —
+ * a full indexing audit shouldn't take ten round trips from the model).
+ * Per-URL failures return an error string instead of sinking the batch.
+ */
+export async function inspectUrls(args: {
+  siteUrl: string;
+  inspectionUrls: string[];
+}): Promise<{ url: string; result: unknown }[]> {
+  const urls = args.inspectionUrls.slice(0, 10);
+  const out: { url: string; result: unknown }[] = [];
+  for (let i = 0; i < urls.length; i += 3) {
+    const chunk = urls.slice(i, i + 3);
+    const results = await Promise.all(
+      chunk.map(async (url) => ({
+        url,
+        result: await inspectUrl({
+          siteUrl: args.siteUrl,
+          inspectionUrl: url,
+        }).catch((e: unknown) => ({
+          error: e instanceof Error ? e.message : String(e),
+        })),
+      })),
+    );
+    out.push(...results);
+  }
+  return out;
+}

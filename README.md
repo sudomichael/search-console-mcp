@@ -51,7 +51,10 @@ Claude Desktop / Cursor / anything else (`mcpServers` config):
 | `query_search_analytics` | Clicks / impressions / CTR / position by query, page, date, country, device — filters, pagination, and every traffic source **including Google Discover** |
 | `compare_periods` | Biggest movers, computed for you: this period vs the prior one, per-page or per-query deltas, sorted by change |
 | `inspect_url` | Google's index status for a URL: indexed or not, why, chosen canonical, last crawl |
+| `inspect_urls` | The same, batched — up to 10 URLs in one call for indexing audits |
 | `list_sitemaps` | Submitted sitemaps with status |
+
+Read-only by construction: the Google scope this tool requests (`webmasters.readonly`) **cannot** modify your properties, submit sitemaps, or change anything — not "disabled by default," impossible.
 
 ## Built-in analyses
 

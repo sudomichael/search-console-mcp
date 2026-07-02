@@ -11,6 +11,7 @@ import {
   comparePeriods,
   listSitemaps,
   inspectUrl,
+  inspectUrls,
 } from "./gsc.js";
 
 function ok(data: unknown) {
@@ -110,6 +111,26 @@ export async function serve(): Promise<void> {
     async (a) => {
       try {
         return ok(await inspectUrl(a));
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.tool(
+    "inspect_urls",
+    "Batch index-status check: up to 10 URLs in one call (per-URL errors reported inline). Use for indexing audits instead of ten single calls.",
+    {
+      siteUrl: z.string().describe("Exact property from list_properties"),
+      inspectionUrls: z
+        .array(z.string())
+        .min(1)
+        .max(10)
+        .describe("Full URLs to inspect (max 10)"),
+    },
+    async (a) => {
+      try {
+        return ok(await inspectUrls(a));
       } catch (e) {
         return fail(e);
       }
@@ -222,7 +243,7 @@ export async function serve(): Promise<void> {
         `${sitePreamble(s)}\n\n` +
           "Run an indexing audit:\n" +
           "1. list_sitemaps — submitted? errors? how many URLs?\n" +
-          "2. Pull the top 10 pages by impressions (last 28 days) and inspect_url each: indexed, chosen canonical matches, no mobile issues.\n" +
+          "2. Pull the top 10 pages by impressions (last 28 days) and inspect_urls them in ONE batch call: indexed, chosen canonical matches, no mobile issues.\n" +
           "3. Flag anything where Google's canonical differs from the URL, or an important page is not indexed — explain why in plain language and what to change.\n" +
           "4. Keep it tight: a table of page → status → action, then one paragraph of what matters most.",
       ),
