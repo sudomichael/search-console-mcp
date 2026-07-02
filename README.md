@@ -52,6 +52,17 @@ Claude Desktop / Cursor / anything else (`mcpServers` config):
 | `inspect_url` | Google's index status for a URL: indexed or not, why, chosen canonical, last crawl |
 | `list_sitemaps` | Submitted sitemaps with status |
 
+## Built-in analyses
+
+Not just a connector — four ready-made analyses ship as MCP prompts (slash-commands in clients that support them):
+
+| Prompt | What you get |
+| --- | --- |
+| `seo_checkup` | Trend vs last month, biggest movers, and the top 3 moves worth making |
+| `striking_distance` | Queries sitting at position 5–15 — the fastest traffic you're not getting, with the fix per page |
+| `traffic_drop` | When the drop started, which pages/queries lost, indexed-or-not, most likely cause |
+| `indexing_audit` | Sitemap status + index inspection of your top pages, with plain-language fixes |
+
 ## Privacy
 
 - **Read-only** Google scope (`webmasters.readonly`).
