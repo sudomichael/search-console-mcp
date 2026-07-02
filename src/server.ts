@@ -27,7 +27,7 @@ function fail(err: unknown) {
 }
 
 export async function serve(): Promise<void> {
-  const server = new McpServer({ name: "search-console-mcp", version: "0.1.1" });
+  const server = new McpServer({ name: "search-console-mcp", version: "0.1.2" });
 
   server.tool(
     "list_properties",

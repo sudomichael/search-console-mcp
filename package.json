@@ -1,6 +1,7 @@
 {
   "name": "search-console-mcp-server",
-  "version": "0.1.1",
+  "version": "0.1.2",
+  "mcpName": "io.github.sudomichael/search-console-mcp",
   "description": "Talk to your Google Search Console from Claude, Cursor, or any MCP client — one sign-in, no Google Cloud project required.",
   "license": "MIT",
   "type": "module",
