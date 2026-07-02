@@ -82,7 +82,7 @@ export async function login(): Promise<void> {
       if (err || gotState !== state || !gotCode) {
         res
           .writeHead(400, { "Content-Type": "text/plain" })
-          .end("Sign-in failed — you can close this tab and rerun `npx @getpercy/search-console-mcp login`.");
+          .end("Sign-in failed — you can close this tab and rerun `npx search-console-mcp-server login`.");
         server.close();
         reject(new Error(err ?? "OAuth state mismatch"));
         return;
@@ -153,7 +153,7 @@ export async function accessToken(): Promise<string> {
   const creds = await load();
   if (!creds) {
     throw new Error(
-      "Not signed in. Run `npx @getpercy/search-console-mcp login` first (one-time, 30 seconds).",
+      "Not signed in. Run `npx search-console-mcp-server login` first (one-time, 30 seconds).",
     );
   }
   if (Date.now() < creds.expires_at) return creds.access_token;

@@ -5,7 +5,7 @@
 Every other Search Console MCP server makes you create a Google Cloud project, enable APIs, and wrangle service-account JSON. This one doesn't:
 
 ```bash
-npx @getpercy/search-console-mcp login
+npx search-console-mcp-server login
 ```
 
 Your browser opens, you sign in with Google, done. Tokens are minted by Google directly to your machine and stored **only** in `~/.search-console-mcp/` — nothing passes through anyone's servers. Read-only scope.
@@ -15,7 +15,7 @@ Your browser opens, you sign in with Google, done. Tokens are minted by Google d
 **1. Sign in (one time):**
 
 ```bash
-npx @getpercy/search-console-mcp login
+npx search-console-mcp-server login
 ```
 
 **2. Add to your MCP client:**
@@ -23,7 +23,7 @@ npx @getpercy/search-console-mcp login
 Claude Code:
 
 ```bash
-claude mcp add gsc -- npx -y @getpercy/search-console-mcp
+claude mcp add gsc -- npx -y search-console-mcp-server
 ```
 
 Claude Desktop / Cursor / anything else (`mcpServers` config):
@@ -31,7 +31,7 @@ Claude Desktop / Cursor / anything else (`mcpServers` config):
 ```json
 {
   "mcpServers": {
-    "gsc": { "command": "npx", "args": ["-y", "@getpercy/search-console-mcp"] }
+    "gsc": { "command": "npx", "args": ["-y", "search-console-mcp-server"] }
   }
 }
 ```
@@ -55,7 +55,7 @@ Claude Desktop / Cursor / anything else (`mcpServers` config):
 ## Privacy
 
 - **Read-only** Google scope (`webmasters.readonly`).
-- Tokens live in `~/.search-console-mcp/credentials.json` on your machine, `chmod 600`. `npx @getpercy/search-console-mcp logout` deletes them.
+- Tokens live in `~/.search-console-mcp/credentials.json` on your machine, `chmod 600`. `npx search-console-mcp-server logout` deletes them.
 - No telemetry, no proxy — API calls go from your machine to Google, full stop.
 - Prefer your own Google Cloud project? Set `SEARCH_CONSOLE_MCP_CLIENT_ID` / `SEARCH_CONSOLE_MCP_CLIENT_SECRET` and it uses yours.
 

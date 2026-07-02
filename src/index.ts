@@ -2,9 +2,9 @@
 /**
  * search-console-mcp — Google Search Console for MCP clients, with a 30-second login.
  *
- *   npx @getpercy/search-console-mcp login     one-time Google sign-in (tokens stay local)
- *   npx @getpercy/search-console-mcp           run the MCP server (stdio) — what clients invoke
- *   npx @getpercy/search-console-mcp logout    delete local credentials
+ *   npx search-console-mcp-server login     one-time Google sign-in (tokens stay local)
+ *   npx search-console-mcp-server           run the MCP server (stdio) — what clients invoke
+ *   npx search-console-mcp-server logout    delete local credentials
  */
 import { login, logout } from "./auth.js";
 import { serve } from "./server.js";
@@ -17,9 +17,9 @@ async function main() {
   if (cmd === "help" || cmd === "--help" || cmd === "-h") {
     console.error(
       "search-console-mcp — Search Console for Claude/Cursor/any MCP client\n\n" +
-        "  npx @getpercy/search-console-mcp login    one-time Google sign-in\n" +
-        "  npx @getpercy/search-console-mcp          run the MCP server (used by your MCP client)\n" +
-        "  npx @getpercy/search-console-mcp logout   remove local credentials\n\n" +
+        "  npx search-console-mcp-server login    one-time Google sign-in\n" +
+        "  npx search-console-mcp-server          run the MCP server (used by your MCP client)\n" +
+        "  npx search-console-mcp-server logout   remove local credentials\n\n" +
         "Docs: https://www.getpercy.io/search-console-mcp",
     );
     return;
