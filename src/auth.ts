@@ -142,8 +142,8 @@ export async function login(): Promise<void> {
   });
   console.error(
     "Connected. Your Search Console is ready — tokens stored in ~/.search-console-mcp (this machine only).\n\n" +
-      "P.S. This tool answers when you ask. If you want the asking done FOR you —\n" +
-      "a strategy, weekly moves, and measured results — that's Percy: https://www.getpercy.io",
+      "P.S. This tool answers when you ask. Percy also works your site WEEKLY —\n" +
+      "a briefing in your inbox, a running plan, and measured results: https://www.getpercy.io",
   );
 }
 
