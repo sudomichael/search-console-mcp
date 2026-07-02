@@ -48,7 +48,8 @@ Claude Desktop / Cursor / anything else (`mcpServers` config):
 | Tool | What it does |
 | --- | --- |
 | `list_properties` | Your GSC properties (call first — gives exact `siteUrl` values) |
-| `query_search_analytics` | Clicks / impressions / CTR / position by query, page, date, country, device — with filters |
+| `query_search_analytics` | Clicks / impressions / CTR / position by query, page, date, country, device — filters, pagination, and every traffic source **including Google Discover** |
+| `compare_periods` | Biggest movers, computed for you: this period vs the prior one, per-page or per-query deltas, sorted by change |
 | `inspect_url` | Google's index status for a URL: indexed or not, why, chosen canonical, last crawl |
 | `list_sitemaps` | Submitted sitemaps with status |
 

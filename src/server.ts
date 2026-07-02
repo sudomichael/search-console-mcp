@@ -8,6 +8,7 @@ import { z } from "zod";
 import {
   listSites,
   querySearchAnalytics,
+  comparePeriods,
   listSitemaps,
   inspectUrl,
 } from "./gsc.js";
@@ -52,12 +53,47 @@ export async function serve(): Promise<void> {
         .optional()
         .describe("Grouping, default ['query']"),
       rowLimit: z.number().int().min(1).max(1000).optional(),
+      startRow: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe("Pagination offset — pass 1000, 2000, … for more rows"),
+      searchType: z
+        .enum(["web", "image", "video", "news", "discover", "googleNews"])
+        .optional()
+        .describe("Traffic source — 'discover' shows Google Discover performance"),
       queryContains: z.string().optional().describe("Only queries containing this"),
       pageContains: z.string().optional().describe("Only page URLs containing this"),
     },
     async (a) => {
       try {
         return ok(await querySearchAnalytics(a));
+      } catch (e) {
+        return fail(e);
+      }
+    },
+  );
+
+  server.tool(
+    "compare_periods",
+    "The biggest-movers analysis, computed for you: this date range vs the prior equal-length range, joined per page (or query) with clicks/impressions/position deltas, sorted by biggest change. Use this for 'what fell/grew', 'this month vs last', and trend diagnosis — it's one call and the math is already done.",
+    {
+      siteUrl: z.string().describe("Exact property from list_properties"),
+      startDate: z.string().describe("Current period start, YYYY-MM-DD"),
+      endDate: z.string().describe("Current period end, YYYY-MM-DD"),
+      dimension: z
+        .enum(["page", "query"])
+        .optional()
+        .describe("Compare by page (default) or by query"),
+      rowLimit: z.number().int().min(1).max(200).optional(),
+      searchType: z
+        .enum(["web", "image", "video", "news", "discover", "googleNews"])
+        .optional(),
+    },
+    async (a) => {
+      try {
+        return ok(await comparePeriods(a));
       } catch (e) {
         return fail(e);
       }
