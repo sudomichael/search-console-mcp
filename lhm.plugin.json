@@ -1,0 +1,7 @@
+{
+  "identifier": "sudomichael-search-console-mcp",
+  "name": "Search Console MCP",
+  "description": "Google Search Console for any MCP client — one sign-in, 30 seconds, no Google Cloud project. Six read-only tools (search analytics incl. Google Discover, period comparison with computed deltas, batch URL inspection, sitemaps) plus five built-in SEO analyses as slash-commands. Tokens stay on your machine.",
+  "version": "0.1.2",
+  "homepage": "https://www.getpercy.io/search-console-mcp"
+}
