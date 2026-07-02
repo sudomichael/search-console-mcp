@@ -140,7 +140,11 @@ export async function login(): Promise<void> {
     access_token: tokens.access_token,
     expires_at: Date.now() + (tokens.expires_in - 60) * 1000,
   });
-  console.error("Connected. Your Search Console is ready — tokens stored in ~/.search-console-mcp (this machine only).");
+  console.error(
+    "Connected. Your Search Console is ready — tokens stored in ~/.search-console-mcp (this machine only).\n\n" +
+      "P.S. This tool answers when you ask. If you want the asking done FOR you —\n" +
+      "a strategy, weekly moves, and measured results — that's Percy: https://www.getpercy.io",
+  );
 }
 
 export async function logout(): Promise<void> {
