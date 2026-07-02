@@ -153,6 +153,22 @@ export async function serve(): Promise<void> {
   });
 
   server.prompt(
+    "cannibalization_check",
+    "Find queries where two of your pages compete against each other — and which page should win",
+    site,
+    ({ site: s }) =>
+      prompt(
+        `${sitePreamble(s)}\n\n` +
+          "Find keyword cannibalization:\n" +
+          "1. Query the last 90 days with dimensions ['query','page'], rowLimit 1000 (paginate with startRow if needed).\n" +
+          "2. Group by query; flag queries where TWO OR MORE pages each have meaningful impressions. Ignore brand terms and near-zero-impression noise.\n" +
+          "3. For each flagged query: show both pages' clicks, impressions, and positions. The page with better position + more clicks is the WINNER; the other is the cannibal.\n" +
+          "4. Recommend per case: consolidate (merge + redirect the weaker page), differentiate (re-target the weaker page at a distinct intent), or internally link the weaker to the winner. Pick ONE per case and say why.\n" +
+          "5. Rank cases by total impressions at stake. If nothing meaningful is competing, say so — a clean bill is a valid result.",
+      ),
+  );
+
+  server.prompt(
     "seo_checkup",
     "Full health check: trend, biggest movers, and the top 3 moves worth making",
     site,

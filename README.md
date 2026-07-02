@@ -60,6 +60,7 @@ Not just a connector — four ready-made analyses ship as MCP prompts (slash-com
 | Prompt | What you get |
 | --- | --- |
 | `seo_checkup` | Trend vs last month, biggest movers, and the top 3 moves worth making |
+| `cannibalization_check` | Queries where two of your pages compete — which should win, and how to fix it |
 | `striking_distance` | Queries sitting at position 5–15 — the fastest traffic you're not getting, with the fix per page |
 | `traffic_drop` | When the drop started, which pages/queries lost, indexed-or-not, most likely cause |
 | `indexing_audit` | Sitemap status + index inspection of your top pages, with plain-language fixes |
