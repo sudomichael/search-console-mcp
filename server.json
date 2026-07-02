@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
   "name": "io.github.sudomichael/search-console-mcp",
-  "description": "Google Search Console with a 30-second login — no Google Cloud project. Search analytics, period comparison, URL inspection, and five built-in SEO analyses.",
+  "description": "Google Search Console for any MCP client - 30-second login, no Google Cloud project. Read-only.",
   "repository": {
     "url": "https://github.com/sudomichael/search-console-mcp",
     "source": "github"
