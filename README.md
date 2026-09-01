@@ -46,7 +46,7 @@ Your browser opens, you sign in with Google, done. Tokens are minted by Google d
 | Setup | `npx … login`, sign in, done (~30s) | Create a Google Cloud project, enable the API, create OAuth credentials, download JSON, point config at it |
 | Runtime | Node — `npx`, nothing to install | Python + uv/venv |
 | Can it modify your site data? | **Impossible** — read-only scope by construction | Write scopes with destructive ops "disabled by default" |
-| Analyses | 5 built-in (checkup, cannibalization, striking distance, traffic drop, indexing audit) | Bring your own prompts |
+| Analyses | 10 built-in (checkup, traffic drop, traffic decay, striking distance, keyword opportunities, cannibalization, title/CTR rewrite, refresh-vs-new, internal links, indexing audit) | Bring your own prompts |
 
 ## What to expect on first run
 
@@ -87,15 +87,20 @@ Claude:  Three real opportunities, by impressions at stake:
 
 ## Built-in SEO analysts
 
-Five ready-made analyses ship as MCP prompts — slash-commands in clients that support them. Outcomes, not API calls:
+Ten ready-made analyses ship as MCP prompts — slash-commands in clients that support them. Each one applies real SEO methodology (thresholds, cause classification, CTR benchmarks) and ends with ranked actions, never a data dump:
 
 | Prompt | What you get |
 | --- | --- |
-| `seo_checkup` | Trend vs last month, biggest movers, and the top 3 moves worth making |
-| `cannibalization_check` | Queries where two of your pages compete — which should win, and how to fix it |
-| `striking_distance` | Queries sitting at position 5–15 — the fastest traffic you're not getting, with the fix per page |
-| `traffic_drop` | When the drop started, which pages/queries lost, indexed-or-not, most likely cause |
-| `indexing_audit` | Sitemap status + index inspection of your top pages, with plain-language fixes |
+| `seo_checkup` | Trend vs last month, biggest movers, quick wins — and the top 3 moves scored by impact ÷ effort |
+| `traffic_drop` | When the drop started, who lost, and the verdict: rankings, CTR, indexing, demand, or seasonality |
+| `traffic_decay` | Pages quietly bleeding clicks month over month — caught and prioritized before they crater |
+| `striking_distance` | Queries at position 4–20 ranked by estimated click gain, with the one fix per page |
+| `keyword_opportunities` | Every growth lever in one pass: CTR fixes, page-1 pushes, page-2 climbs, emerging demand |
+| `cannibalization_check` | Queries where your own pages fight each other — the winner, one fix per case, recovery estimate |
+| `title_ctr_rewrite` | Pages underperforming their position, with rewritten titles + metas grounded in real queries |
+| `refresh_vs_new` | For any topic: refresh, consolidate, prune, or create new — one verdict from your existing footprint |
+| `internal_links` | A source → target → anchor link plan, justified by query overlap Google already sees |
+| `indexing_audit` | Sitemaps + index status of the pages that matter, triaged by traffic at risk |
 
 ## Setup
 
