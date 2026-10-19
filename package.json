@@ -1,6 +1,6 @@
 {
   "name": "search-console-mcp-server",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "mcpName": "io.github.sudomichael/search-console-mcp",
   "description": "Talk to your Google Search Console from Claude, Cursor, or any MCP client — one sign-in, no Google Cloud project required.",
   "license": "MIT",
@@ -17,6 +17,7 @@
     "build": "tsup src/index.ts --format esm --target node18 --clean",
     "dev": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
     "prepublishOnly": "npm run build"
   },
   "engines": {
@@ -31,7 +32,7 @@
     "claude",
     "cursor"
   ],
-  "homepage": "https://www.getpercy.io/search-console-mcp",
+  "homepage": "https://www.turboconsole.io/search-console-mcp",
   "repository": {
     "type": "git",
     "url": "https://github.com/sudomichael/search-console-mcp"

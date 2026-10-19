@@ -12,7 +12,7 @@ One sign-in. 30 seconds. *No Google Cloud project. No API keys. Tokens never lea
 [![license](https://img.shields.io/npm/l/search-console-mcp-server)](./LICENSE)
 [![node](https://img.shields.io/node/v/search-console-mcp-server)](https://nodejs.org)
 
-[Docs](https://www.getpercy.io/search-console-mcp) · [npm](https://www.npmjs.com/package/search-console-mcp-server) · [Report an issue](https://github.com/sudomichael/search-console-mcp/issues)
+[Docs](https://www.turboconsole.io/search-console-mcp) · [npm](https://www.npmjs.com/package/search-console-mcp-server) · [Report an issue](https://github.com/sudomichael/search-console-mcp/issues)
 
 </div>
 
@@ -58,7 +58,7 @@ Connected. Your Search Console is ready — tokens stored in
 ~/.search-console-mcp (this machine only).
 ```
 
-That's the whole setup. No clone, no Google Cloud console, no JSON files.
+The browser opens the setup page only after Google returns valid credentials and they are saved locally. If token exchange or saving fails, it shows an error instead of a success page. No clone or Google Cloud console is required.
 
 ---
 
@@ -161,13 +161,13 @@ What a `compare_periods` call hands your model (the model never does date arithm
 
 - **Read-only** Google scope (`webmasters.readonly`).
 - Tokens live in `~/.search-console-mcp/credentials.json` on your machine, `chmod 600`. `npx search-console-mcp-server logout` deletes them.
-- No telemetry, no proxy — API calls go from your machine to Google, full stop.
+- No MCP usage telemetry or proxy — Search Console API calls go from your machine directly to Google. After successful login, your browser opens the TurboConsole setup page with only the MCP source and package version in its URL; no credentials, authorization codes, or property data are included.
 - Prefer your own Google Cloud project? Set `SEARCH_CONSOLE_MCP_CLIENT_ID` / `SEARCH_CONSOLE_MCP_CLIENT_SECRET` and it uses yours.
 
 ## FAQ / Troubleshooting
 
 **How can the login work without me creating Google credentials?**
-The CLI ships a Google "Desktop app" OAuth client — the same supported model `gcloud` and GitHub's CLI use. Your tokens are still minted by Google directly to your machine (PKCE + localhost callback); they never touch our servers. The entire auth path is ~200 lines in [`src/auth.ts`](src/auth.ts) — read it. Want zero shared anything? Set `SEARCH_CONSOLE_MCP_CLIENT_ID` / `SEARCH_CONSOLE_MCP_CLIENT_SECRET` with your own credentials.
+The CLI ships a Google "Desktop app" OAuth client — the same supported model `gcloud` and GitHub's CLI use. Your tokens are still minted by Google directly to your machine (PKCE + localhost callback); they never touch our servers. The auth path is in [`src/auth.ts`](src/auth.ts) — read it. Want zero shared anything? Set `SEARCH_CONSOLE_MCP_CLIENT_ID` / `SEARCH_CONSOLE_MCP_CLIENT_SECRET` with your own credentials.
 
 **Switch Google accounts?**
 `npx search-console-mcp-server login` again — Google shows the account picker.
@@ -190,23 +190,20 @@ Google Search Console data lags ~2–3 days. That's Google, not the tool. Histor
 git clone https://github.com/sudomichael/search-console-mcp
 cd search-console-mcp && npm install
 npm run dev      # run from source
-npm run build    # bundle to dist/ (10KB, no googleapis dependency)
+npm run build    # bundle to dist/ (no googleapis dependency)
+npm test         # mocked login tests; no Google calls or credential writes
 ```
 
-The entire auth path is ~200 lines in [`src/auth.ts`](src/auth.ts). To verify any privacy claim above, read the source.
+The auth path is in [`src/auth.ts`](src/auth.ts). To verify any privacy claim above, read the source.
 
 ---
 
-### Looking for something proactive?
+### Turn the research into a published improvement
 
-This MCP server helps you *investigate* — you ask, it answers.
+The MCP stays free. If you want help preparing one specific page improvement, [**TurboConsole**](https://www.turboconsole.io/sign-in?source=mcp&workflow=improve-page) researches your Search Console evidence, drafts a focused change, and keeps the next action with your saved work. You review and publish it in your own CMS, then verify the change and follow the results.
 
-After a week you may notice you keep asking the same questions: *What dropped? What's closest to page one? What should I fix?*
-
-[**Percy**](https://www.getpercy.io) is the other half: he checks your Search Console every week on his own, builds a strategy, emails you exactly what to change — then re-checks the live page and measures whether it worked.
-
-Exploration here. Execution there. Same philosophy: real data, plain English, no dashboards.
+TurboConsole is a separate paid workspace: 7 days free, no card, then plans from $29/month if you continue. It requires its own Google connection; it does not import local MCP credentials or conversations.
 
 ---
 
-MIT licensed. Issues and PRs welcome. Built by [Percy](https://www.getpercy.io).
+MIT licensed. Issues and PRs welcome. Built by [TurboConsole](https://www.turboconsole.io).
