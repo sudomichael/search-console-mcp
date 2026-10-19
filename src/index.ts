@@ -20,7 +20,7 @@ async function main() {
         "  npx search-console-mcp-server login    one-time Google sign-in\n" +
         "  npx search-console-mcp-server          run the MCP server (used by your MCP client)\n" +
         "  npx search-console-mcp-server logout   remove local credentials\n\n" +
-        "Docs: https://www.turboconsole.io/search-console-mcp",
+        "Docs: https://www.getpercy.io/search-console-mcp",
     );
     return;
   }

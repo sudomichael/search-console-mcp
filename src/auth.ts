@@ -3,7 +3,7 @@
  *
  * Privacy contract (this is the product's launch story, don't break it):
  * tokens are minted by Google directly to THIS machine and stored ONLY in
- * ~/.search-console-mcp/credentials.json. Nothing passes through TurboConsole's servers.
+ * ~/.search-console-mcp/credentials.json. Nothing passes through Percy's servers.
  *
  * The client credentials below belong to a Google "Desktop app" OAuth client.
  * Google's docs are explicit that installed-app credentials are not treated
@@ -28,10 +28,10 @@ const CLIENT_SECRET =
 
 const SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
 const { version } = createRequire(import.meta.url)("../package.json") as { version: string };
-const SUCCESS_URL = new URL("https://www.turboconsole.io/search-console-mcp/connected");
+const SUCCESS_URL = new URL("https://www.getpercy.io/search-console-mcp/connected");
 SUCCESS_URL.searchParams.set("source", "mcp-login");
 SUCCESS_URL.searchParams.set("version", version);
-const WORKSPACE_URL = "https://www.turboconsole.io/sign-in?source=mcp&workflow=improve-page";
+const WORKSPACE_URL = "https://www.getpercy.io/sign-in?source=mcp&workflow=improve-page";
 
 const CRED_DIR = join(homedir(), ".search-console-mcp");
 const CRED_FILE = join(CRED_DIR, "credentials.json");
@@ -191,7 +191,7 @@ export async function login(options: Partial<LoginDependencies> = {}): Promise<v
   }
   print(
     "Connected. Your Search Console is ready — tokens stored in ~/.search-console-mcp (this machine only).\n\n" +
-    "Want a page change you can review and publish? TurboConsole adds researched drafts, " +
+    "Want a page change you can review and publish? Percy adds researched drafts, " +
     "change verification, and follow-through. Separate Google connection; paid plans after the free trial.\n" +
     WORKSPACE_URL,
   );

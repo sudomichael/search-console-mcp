@@ -54,7 +54,7 @@ function setup(overrides: Partial<Parameters<typeof login>[0]> = {}) {
   };
 }
 
-test("redirects to TurboConsole only after exchange AND save, preserving PKCE and local storage", async () => {
+test("redirects to Percy only after exchange AND save, preserving PKCE and local storage", async () => {
   const exchanged = deferred<typeof TOKENS>(), saved = deferred<void>();
   let params: Record<string, string> = {}, credentials: unknown;
   const h = setup({ exchangeToken: async input => { params = input; return exchanged.promise; }, save: async input => { credentials = input; await saved.promise; } });
@@ -69,14 +69,14 @@ test("redirects to TurboConsole only after exchange AND save, preserving PKCE an
   assert.equal(h.authorization().searchParams.get("code_challenge"), createHash("sha256").update(params.code_verifier).digest("base64url"));
   saved.resolve(); await h.promise;
   const destination = new URL(res.headers.Location);
-  assert.equal(destination.origin, "https://www.turboconsole.io");
+  assert.equal(destination.origin, "https://www.getpercy.io");
   assert.equal(destination.pathname, "/search-console-mcp/connected");
   assert.deepEqual([...destination.searchParams.keys()], ["source", "version"]);
   assert.equal(destination.searchParams.get("source"), "mcp-login");
   assert.match(destination.searchParams.get("version")!, /^\d+\.\d+\.\d+/);
   assert.equal(res.status, 302); assert.equal(res.ended, true);
   assert.equal(h.closed(), 1); assert.equal(h.idleClosed(), 1);
-  assert.match(h.messages.at(-1)!, /TurboConsole/);
+  assert.match(h.messages.at(-1)!, /Percy/);
   assert.doesNotMatch(res.headers.Location, /test-access|test-refresh|test-code/);
 });
 
