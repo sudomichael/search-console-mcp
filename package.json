@@ -35,7 +35,7 @@
   "homepage": "https://www.getpercy.io/search-console-mcp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sudomichael/search-console-mcp"
+    "url": "git+https://github.com/sudomichael/search-console-mcp.git"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
