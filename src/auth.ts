@@ -14,7 +14,7 @@
 import { createServer, type Server, type ServerResponse } from "node:http";
 import { createRequire } from "node:module";
 import { createHash, randomBytes } from "node:crypto";
-import { mkdir, readFile, writeFile, rm, chmod } from "node:fs/promises";
+import { mkdir, readFile, writeFile, rm, rename } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
@@ -52,14 +52,17 @@ function b64url(buf: Buffer): string {
 }
 
 function openBrowser(url: string): void {
-  const cmd =
+  const [cmd, args] =
     process.platform === "darwin"
-      ? "open"
+      ? ["open", [url]]
       : process.platform === "win32"
-        ? "start"
-        : "xdg-open";
+        ? ["cmd", ["/c", "start", '""', url]]
+        : ["xdg-open", [url]];
   try {
-    spawn(cmd, [url], { detached: true, stdio: "ignore" }).unref();
+    const child = spawn(cmd, args, { detached: true, stdio: "ignore" });
+    // Spawn failures (missing opener) are async; the printed URL is the fallback.
+    child.on("error", () => {});
+    child.unref();
   } catch {
     // Fine — the URL is printed to the terminal as the fallback.
   }
@@ -202,26 +205,40 @@ export async function logout(): Promise<void> {
   console.error("Signed out — local credentials deleted.");
 }
 
-/** A valid access token, refreshing transparently. Throws if never logged in. */
-export async function accessToken(): Promise<string> {
+const LOGIN_CMD = "npx search-console-mcp-server login";
+let refreshing: Promise<string> | null = null;
+
+/**
+ * A valid access token, refreshing transparently. Throws if never logged in.
+ * Concurrent callers share one in-flight refresh; `force` refreshes even if
+ * the cached token looks valid (used after a 401).
+ */
+export async function accessToken(force = false): Promise<string> {
   const creds = await load();
   if (!creds) {
     throw new Error(
       "Not signed in. Run `npx search-console-mcp-server login` first (one-time, 30 seconds).",
     );
   }
-  if (Date.now() < creds.expires_at) return creds.access_token;
-  const tokens = await exchangeToken({
-    grant_type: "refresh_token",
-    refresh_token: creds.refresh_token,
-  });
-  const next: Credentials = {
-    refresh_token: tokens.refresh_token ?? creds.refresh_token,
-    access_token: tokens.access_token,
-    expires_at: Date.now() + (tokens.expires_in - 60) * 1000,
-  };
-  await save(next);
-  return next.access_token;
+  if (!force && Date.now() < creds.expires_at) return creds.access_token;
+  if (!refreshing) {
+    refreshing = (async () => {
+      const tokens = await exchangeToken({
+        grant_type: "refresh_token",
+        refresh_token: creds.refresh_token,
+      });
+      const next: Credentials = {
+        refresh_token: tokens.refresh_token ?? creds.refresh_token,
+        access_token: tokens.access_token,
+        expires_at: Date.now() + (tokens.expires_in - 60) * 1000,
+      };
+      await save(next);
+      return next.access_token;
+    })().finally(() => {
+      refreshing = null;
+    });
+  }
+  return refreshing;
 }
 
 async function exchangeToken(
@@ -230,7 +247,7 @@ async function exchangeToken(
 ): Promise<{ access_token: string; refresh_token?: string; expires_in: number }> {
   const res = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
-    signal,
+    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(30_000)]) : AbortSignal.timeout(30_000),
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       client_id: CLIENT_ID,
@@ -239,7 +256,11 @@ async function exchangeToken(
     }),
   });
   if (!res.ok) {
-    throw new Error(`Google token exchange failed (${res.status}). Rerun login.`);
+    const text = await res.text().catch(() => "");
+    if (text.includes("invalid_grant")) {
+      throw new Error(`Your Google sign-in expired or was revoked. Run: ${LOGIN_CMD}`);
+    }
+    throw new Error(`Google token exchange failed (${res.status}). Run: ${LOGIN_CMD}`);
   }
   return (await res.json()) as {
     access_token: string;
@@ -257,7 +278,8 @@ async function load(): Promise<Credentials | null> {
 }
 
 async function save(creds: Credentials): Promise<void> {
-  await mkdir(CRED_DIR, { recursive: true });
-  await writeFile(CRED_FILE, JSON.stringify(creds, null, 2));
-  await chmod(CRED_FILE, 0o600);
+  await mkdir(CRED_DIR, { recursive: true, mode: 0o700 });
+  const tmp = `${CRED_FILE}.tmp`;
+  await writeFile(tmp, JSON.stringify(creds, null, 2), { mode: 0o600 });
+  await rename(tmp, CRED_FILE);
 }

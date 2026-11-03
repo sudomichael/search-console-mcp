@@ -4,21 +4,64 @@
  */
 import { accessToken } from "./auth.js";
 
-async function call<T>(url: string, body?: unknown): Promise<T> {
-  const token = await accessToken();
-  const res = await fetch(url, {
-    method: body ? "POST" : "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      ...(body ? { "Content-Type": "application/json" } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Search Console API ${res.status}: ${text.slice(0, 500)}`);
+const LOGIN_CMD = "npx search-console-mcp-server login";
+const REAUTH_MESSAGE = `Your Google sign-in expired or was revoked. Run: ${LOGIN_CMD}`;
+const TIMEOUT_MS = 30_000;
+
+/** Backoff before each 429 retry (mutable so tests can zero it). */
+export const retryDelaysMs = [1000, 3000];
+
+function apiDetail(text: string): string {
+  let detail = text;
+  try {
+    const parsed = JSON.parse(text) as { error?: { message?: string } };
+    if (parsed.error?.message) detail = parsed.error.message;
+  } catch {
+    // Not JSON — use the raw text.
   }
-  return (await res.json()) as T;
+  return detail.slice(0, 300);
+}
+
+async function call<T>(url: string, body?: unknown): Promise<T> {
+  let token = await accessToken();
+  let refreshed = false;
+  let retries = 0;
+  for (;;) {
+    const res = await fetch(url, {
+      method: body ? "POST" : "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(body ? { "Content-Type": "application/json" } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (res.ok) return (await res.json()) as T;
+    const detail = apiDetail(await res.text().catch(() => ""));
+    const suffix = detail ? ` (${detail})` : "";
+    if (res.status === 401) {
+      if (!refreshed) {
+        refreshed = true;
+        token = await accessToken(true);
+        continue;
+      }
+      throw new Error(`${REAUTH_MESSAGE}${suffix}`);
+    }
+    if (res.status === 403) {
+      throw new Error(
+        "No access to this property with the signed-in Google account. Run list_properties to see the exact siteUrl values you can use (domain properties look like sc-domain:example.com)." +
+          suffix,
+      );
+    }
+    if (res.status === 429) {
+      if (retries < retryDelaysMs.length) {
+        await new Promise((r) => setTimeout(r, retryDelaysMs[retries++]));
+        continue;
+      }
+      throw new Error(`Search Console quota hit — wait a minute and retry.${suffix}`);
+    }
+    throw new Error(`Search Console API ${res.status}: ${detail}`);
+  }
 }
 
 export type SiteEntry = { siteUrl: string; permissionLevel: string };
@@ -79,21 +122,56 @@ export async function querySearchAnalytics(args: {
   return data.rows ?? [];
 }
 
+type Metrics = { clicks: number; impressions: number; position: number | null };
+
 export type PeriodDelta = {
   key: string;
-  current: { clicks: number; impressions: number; position: number };
-  previous: { clicks: number; impressions: number; position: number };
+  current: Metrics;
+  previous: Metrics;
   deltaClicks: number;
   deltaImpressions: number;
-  /** Negative = improved (moved toward #1). */
-  deltaPosition: number;
+  /** Negative = improved (moved toward #1). Null when the key is in only one period. */
+  deltaPosition: number | null;
 };
+
+const PAGE_SIZE = 1000;
+const MAX_PAGES = 5;
+
+/** Rounds ctr to 4 decimals and position/deltaPosition to 1, recursively. */
+export function roundMetrics<T>(value: T): T {
+  const round = (n: number, d: number) => {
+    const f = 10 ** d;
+    return Math.round(n * f) / f;
+  };
+  const walk = (v: unknown): unknown => {
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === "object") {
+      const out: Record<string, unknown> = {};
+      for (const [k, x] of Object.entries(v)) {
+        if (typeof x === "number" && k === "ctr") out[k] = round(x, 4);
+        else if (typeof x === "number" && (k === "position" || k === "deltaPosition")) out[k] = round(x, 1);
+        else out[k] = walk(x);
+      }
+      return out;
+    }
+    return v;
+  };
+  return walk(value) as T;
+}
+
+function parseDate(label: string, value: string): Date {
+  const d = new Date(`${value}T00:00:00Z`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== value) {
+    throw new Error(`Invalid ${label} "${value}" — use a real date as YYYY-MM-DD.`);
+  }
+  return d;
+}
 
 /**
  * The analysis every SEO wants first: this period vs the prior equal-length
  * one, joined per page/query with deltas, sorted by biggest absolute click
- * change. Two API calls + the join done HERE — models fumble multi-call
- * arithmetic, so the tool owns it.
+ * change. Each period is paginated up to 5,000 rows; the join is done HERE —
+ * models fumble multi-call arithmetic, so the tool owns it.
  */
 export async function comparePeriods(args: {
   siteUrl: string;
@@ -102,71 +180,92 @@ export async function comparePeriods(args: {
   dimension?: "page" | "query";
   rowLimit?: number;
   searchType?: string;
-}): Promise<{ periodDays: number; previousRange: string; rows: PeriodDelta[] }> {
-  const start = new Date(`${args.startDate}T00:00:00Z`);
-  const end = new Date(`${args.endDate}T00:00:00Z`);
+}): Promise<{
+  periodDays: number;
+  previousRange: string;
+  truncated: boolean;
+  note?: string;
+  rows: PeriodDelta[];
+}> {
+  const start = parseDate("startDate", args.startDate);
+  const end = parseDate("endDate", args.endDate);
+  if (end.getTime() < start.getTime()) {
+    throw new Error(`endDate ${args.endDate} is before startDate ${args.startDate}.`);
+  }
   const days = Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1;
   const prevEnd = new Date(start.getTime() - 86_400_000);
   const prevStart = new Date(prevEnd.getTime() - (days - 1) * 86_400_000);
   const ymd = (d: Date) => d.toISOString().slice(0, 10);
 
   const dim = args.dimension ?? "page";
-  const shared = {
-    siteUrl: args.siteUrl,
-    dimensions: [dim],
-    rowLimit: 1000,
-    searchType: args.searchType,
+  const fetchPeriod = async (startDate: string, endDate: string) => {
+    const rows: SearchAnalyticsRow[] = [];
+    let capped = false;
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const batch = await querySearchAnalytics({
+        siteUrl: args.siteUrl,
+        dimensions: [dim],
+        rowLimit: PAGE_SIZE,
+        startRow: page * PAGE_SIZE,
+        searchType: args.searchType,
+        startDate,
+        endDate,
+      });
+      rows.push(...batch);
+      if (batch.length < PAGE_SIZE) break;
+      if (page === MAX_PAGES - 1) capped = true;
+    }
+    return { rows, capped };
   };
   const [cur, prev] = await Promise.all([
-    querySearchAnalytics({
-      ...shared,
-      startDate: args.startDate,
-      endDate: args.endDate,
-    }),
-    querySearchAnalytics({
-      ...shared,
-      startDate: ymd(prevStart),
-      endDate: ymd(prevEnd),
-    }),
+    fetchPeriod(args.startDate, args.endDate),
+    fetchPeriod(ymd(prevStart), ymd(prevEnd)),
   ]);
 
   const byKey = new Map<string, PeriodDelta>();
-  for (const r of cur) {
+  for (const r of cur.rows) {
     const key = r.keys?.[0] ?? "";
     byKey.set(key, {
       key,
       current: { clicks: r.clicks, impressions: r.impressions, position: r.position },
-      previous: { clicks: 0, impressions: 0, position: 0 },
+      previous: { clicks: 0, impressions: 0, position: null },
       deltaClicks: r.clicks,
       deltaImpressions: r.impressions,
-      deltaPosition: 0,
+      deltaPosition: null,
     });
   }
-  for (const r of prev) {
+  for (const r of prev.rows) {
     const key = r.keys?.[0] ?? "";
     const row = byKey.get(key);
     if (row) {
       row.previous = { clicks: r.clicks, impressions: r.impressions, position: r.position };
       row.deltaClicks = row.current.clicks - r.clicks;
       row.deltaImpressions = row.current.impressions - r.impressions;
-      row.deltaPosition = row.current.position - r.position;
+      row.deltaPosition = (row.current.position ?? r.position) - r.position;
     } else {
       byKey.set(key, {
         key,
-        current: { clicks: 0, impressions: 0, position: 0 },
+        current: { clicks: 0, impressions: 0, position: null },
         previous: { clicks: r.clicks, impressions: r.impressions, position: r.position },
         deltaClicks: -r.clicks,
         deltaImpressions: -r.impressions,
-        deltaPosition: 0,
+        deltaPosition: null,
       });
     }
   }
   const rows = [...byKey.values()]
     .sort((a, b) => Math.abs(b.deltaClicks) - Math.abs(a.deltaClicks))
     .slice(0, Math.min(args.rowLimit ?? 50, 200));
+  const truncated = cur.capped || prev.capped;
   return {
     periodDays: days,
     previousRange: `${ymd(prevStart)}..${ymd(prevEnd)}`,
+    truncated,
+    ...(truncated
+      ? {
+          note: `At least one period has more than ${PAGE_SIZE * MAX_PAGES} rows, so only the top ${PAGE_SIZE * MAX_PAGES} per period were compared. Rows with no position on one side ("new"/"lost") may simply be outside the top ${PAGE_SIZE * MAX_PAGES} in that period, not truly new or lost.`,
+        }
+      : {}),
     rows,
   };
 }

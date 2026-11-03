@@ -33,7 +33,7 @@ One sign-in. 30 seconds. *No Google Cloud project. No API keys. Tokens never lea
   "Why did my traffic drop?"
 ```
 
-Every other Search Console MCP server makes you create a Google Cloud project, enable APIs, and wrangle service-account JSON. This one doesn't:
+Most self-hosted Search Console MCP servers make you create a Google Cloud project, enable APIs, and wrangle service-account JSON. This one doesn't:
 
 ```bash
 npx search-console-mcp-server login
@@ -41,7 +41,7 @@ npx search-console-mcp-server login
 
 Your browser opens, you sign in with Google, done. Tokens are minted by Google directly to your machine and stored **only** in `~/.search-console-mcp/` — nothing passes through anyone's servers.
 
-|  | This server | Typical GSC MCP setup |
+|  | This server | Typical self-hosted GSC MCP setup |
 | --- | --- | --- |
 | Setup | `npx … login`, sign in, done (~30s) | Create a Google Cloud project, enable the API, create OAuth credentials, download JSON, point config at it |
 | Runtime | Node — `npx`, nothing to install | Python + uv/venv |
@@ -53,9 +53,14 @@ Your browser opens, you sign in with Google, done. Tokens are minted by Google d
 ```
 $ npx search-console-mcp-server login
 Opening your browser to sign in with Google…
+If it doesn't open, visit:
 
-Connected. Your Search Console is ready — tokens stored in
-~/.search-console-mcp (this machine only).
+  https://accounts.google.com/o/oauth2/v2/auth?…
+
+Connected. Your Search Console is ready — tokens stored in ~/.search-console-mcp (this machine only).
+
+Want a page change you can review and publish? Percy adds researched drafts, change verification, and follow-through. Separate Google connection; paid plans after the free trial.
+https://www.getpercy.io/sign-in?source=mcp&workflow=improve-page
 ```
 
 The browser opens the setup page only after Google returns valid credentials and they are saved locally. If token exchange or saving fails, it shows an error instead of a success page. No clone or Google Cloud console is required.
@@ -115,7 +120,7 @@ npx search-console-mcp-server login
 Claude Code:
 
 ```bash
-claude mcp add gsc -- npx -y search-console-mcp-server
+claude mcp add gsc --scope user -- npx -y search-console-mcp-server
 ```
 
 Claude Desktop / Cursor / anything else (`mcpServers` config):
@@ -127,6 +132,8 @@ Claude Desktop / Cursor / anything else (`mcpServers` config):
   }
 }
 ```
+
+If the app can't find `npx` (common with nvm), use the absolute path from `which npx` as `command`.
 
 **3. Ask:**
 

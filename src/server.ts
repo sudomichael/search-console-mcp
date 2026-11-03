@@ -1,9 +1,10 @@
 /**
- * The MCP server — four tools over Google Search Console, stdio transport.
+ * The MCP server — six tools over Google Search Console, stdio transport.
  * Results return as compact JSON text; the calling model does the analysis.
  */
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { createRequire } from "node:module";
 import { z } from "zod";
 import {
   listSites,
@@ -12,10 +13,13 @@ import {
   listSitemaps,
   inspectUrl,
   inspectUrls,
+  roundMetrics,
 } from "./gsc.js";
 
+const { version } = createRequire(import.meta.url)("../package.json") as { version: string };
+
 function ok(data: unknown) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(data, null, 1) }] };
+  return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
 }
 
 function fail(err: unknown) {
@@ -27,7 +31,7 @@ function fail(err: unknown) {
 }
 
 export async function serve(): Promise<void> {
-  const server = new McpServer({ name: "search-console-mcp", version: "0.2.1" });
+  const server = new McpServer({ name: "search-console-mcp", version });
 
   server.tool(
     "list_properties",
@@ -69,7 +73,7 @@ export async function serve(): Promise<void> {
     },
     async (a) => {
       try {
-        return ok(await querySearchAnalytics(a));
+        return ok(roundMetrics(await querySearchAnalytics(a)));
       } catch (e) {
         return fail(e);
       }
@@ -94,7 +98,7 @@ export async function serve(): Promise<void> {
     },
     async (a) => {
       try {
-        return ok(await comparePeriods(a));
+        return ok(roundMetrics(await comparePeriods(a)));
       } catch (e) {
         return fail(e);
       }
