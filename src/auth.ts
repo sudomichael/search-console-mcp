@@ -205,6 +205,18 @@ export async function logout(): Promise<void> {
   console.error("Signed out — local credentials deleted.");
 }
 
+/** Caller's signal + timeout, without AbortSignal.any (Node 20.3+ only). */
+function withTimeout(signal: AbortSignal | undefined, ms: number): AbortSignal {
+  const timeout = AbortSignal.timeout(ms);
+  if (!signal) return timeout;
+  const ctrl = new AbortController();
+  const abort = () => ctrl.abort();
+  if (signal.aborted || timeout.aborted) ctrl.abort();
+  signal.addEventListener("abort", abort, { once: true });
+  timeout.addEventListener("abort", abort, { once: true });
+  return ctrl.signal;
+}
+
 const LOGIN_CMD = "npx search-console-mcp-server login";
 let refreshing: Promise<string> | null = null;
 
@@ -247,7 +259,7 @@ async function exchangeToken(
 ): Promise<{ access_token: string; refresh_token?: string; expires_in: number }> {
   const res = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
-    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(30_000)]) : AbortSignal.timeout(30_000),
+    signal: withTimeout(signal, 30_000),
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       client_id: CLIENT_ID,
