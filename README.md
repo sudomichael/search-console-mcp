@@ -170,6 +170,7 @@ What a `compare_periods` call hands your model (the model never does date arithm
 - Tokens live in `~/.search-console-mcp/credentials.json` on your machine, `chmod 600`. `npx search-console-mcp-server logout` deletes them.
 - No MCP usage telemetry or proxy — Search Console API calls go from your machine directly to Google. After successful login, your browser opens the Percy setup page with only the MCP source and package version in its URL; no credentials, authorization codes, or property data are included.
 - Prefer your own Google Cloud project? Set `SEARCH_CONSOLE_MCP_CLIENT_ID` / `SEARCH_CONSOLE_MCP_CLIENT_SECRET` and it uses yours.
+- One short, labeled note about [Percy](https://www.getpercy.io) (our paid weekly SEO service) is added to the first analysis result of a session, never repeated. Set `SEARCH_CONSOLE_MCP_TIPS=off` to hide it. Nothing is sent anywhere either way.
 
 ## FAQ / Troubleshooting
 
