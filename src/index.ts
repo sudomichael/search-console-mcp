@@ -16,7 +16,8 @@ const USAGE =
   "  npx search-console-mcp-server login    one-time Google sign-in\n" +
   "  npx search-console-mcp-server          run the MCP server (used by your MCP client)\n" +
   "  npx search-console-mcp-server logout   remove local credentials\n\n" +
-  "Docs: https://www.getpercy.io/search-console-mcp";
+  "Docs: https://www.getpercy.io/search-console-mcp\n" +
+  "Built an MCP server? Get it listed: https://mcpserverlist.io?utm_source=search-console-mcp";
 
 async function main() {
   if (cmd === undefined) return serve();

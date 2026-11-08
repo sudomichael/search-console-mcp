@@ -214,4 +214,10 @@ Percy is a separate paid workspace: 7 days free, no card, then plans from $29/mo
 
 ---
 
+## Built an MCP server? Get it listed
+
+If you've built your own MCP server, [mcpserverlist.io](https://mcpserverlist.io?utm_source=search-console-mcp&utm_medium=readme) can help you get it listed on high-authority directories.
+
+---
+
 MIT licensed. Issues and PRs welcome. Built by [Percy](https://www.getpercy.io).
